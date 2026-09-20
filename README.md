@@ -2,6 +2,11 @@
 
 An internal AI chatbot that lets analysts query a corpus of documents in plain English (or Portuguese) and get sourced, citable answers.
 
+> 🇧🇷 This project is an independent adaptation of
+> [Document Copilot](https://github.com/daveebbelaar/document-copilot), originally built around
+> SEC filings. This version adapts the concept to the Brazilian
+> context, using CVM DFP filings as its initial corpus.
+
 ## The client
 
 **Ipê Capital** — fictional independent investment research firm based in São Paulo. Their analysts spend half their week reading DFPs (Demonstrações Financeiras Padronizadas) before they can produce any original analysis. CVM Copilot eats that intake work so they can skip straight to insight.
