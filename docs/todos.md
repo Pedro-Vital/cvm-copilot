@@ -60,18 +60,18 @@ Goal: Ipê Capital analysts can sign in with their firm email; backend rejects u
 
 **Backend**
 
-- [ ] `app/auth/dependencies.py` — verify `Authorization: Bearer <supabase_jwt>`, expose `get_current_user`
-- [ ] Reject missing/expired tokens with `401` before any chat or retrieval work
+- [x] `app/auth/dependencies.py` — verify `Authorization: Bearer <supabase_jwt>`, expose `get_current_user`
+- [x] Reject missing/expired tokens with `401` before any chat or retrieval work
 
 **Frontend**
 
-- [ ] Scaffold Vite + React + TypeScript + Tailwind + shadcn ([frontend-setup](guides/frontend-setup.md))
-- [ ] `src/lib/env.ts` — validate `VITE_API_BASE_URL`, `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`
-- [ ] `src/lib/supabase.ts` — browser Supabase client
-- [ ] `src/lib/http.ts` + `src/lib/api.ts` — fetch wrapper with automatic bearer token
-- [ ] Sign-in / sign-up pages (email only, no SSO)
-- [ ] Protected routes — redirect unauthenticated users to login
-- [ ] Verify: sign up, sign in, token reaches backend on a test authenticated endpoint
+- [x] Scaffold Vite + React + TypeScript + Tailwind + shadcn ([frontend-setup](guides/frontend-setup.md))
+- [x] `src/lib/env.ts` — validate `VITE_API_BASE_URL`, `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`
+- [x] `src/lib/supabase.ts` — browser Supabase client
+- [x] `src/lib/http.ts` + `src/lib/api.ts` — fetch wrapper with automatic bearer token
+- [x] Sign-in / sign-up pages (email only, no SSO)
+- [x] Protected routes — redirect unauthenticated users to login
+- [x] Verify: sign up, sign in, token reaches backend on a test authenticated endpoint
 
 ---
 
