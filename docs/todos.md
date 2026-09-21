@@ -19,9 +19,9 @@ The critical path is **data model → ingestion → retrieval → LLM → citati
 
 ## Phase 0 — Prerequisites & foundation
 
-- [ ] Install toolchain: Python 3.12+, `uv`, Node 20+, `pnpm` (see [README](../README.md))
-- [ ] Create Supabase project and collect credentials ([supabase-setup](guides/supabase-setup.md))
-- [ ] Create OpenAI API key (needed from Phase 6 onward)
+- [x] Install toolchain: Python 3.12+, `uv`, Node 20+, `pnpm` (see [README](../README.md))
+- [x] Create Supabase project and collect credentials ([supabase-setup](guides/supabase-setup.md))
+- [x] Create OpenAI API key (needed from Phase 6 onward)
 - [x] Pick the sample company set (ITUB4, MGLU3, SUZB3, VALE3, WEGE3, fiscal years 2021–2025) and manually download each DFP PDF from CVM's filing-search system into `data/downloads/<year>/` (see [README §Sample CVM data](../README.md#sample-cvm-data) — there is no `download.py`; CVM has no scriptable per-filing API and its search is reCAPTCHA-gated)
 - [x] Record each filing in `data/downloads/manifest.json` (`ticker`, `cnpj`, `company_name`, `codigo_cvm`, `form`, `reference_period`, `fiscal_year`, `local_path`, `source_url`)
 - [x] Confirm `data/downloads/manifest.json` lists all 25 filings (5 companies × 5 years) with real `source_url` values (no `FIXME_*` left)
@@ -32,25 +32,25 @@ The critical path is **data model → ingestion → retrieval → LLM → citati
 
 Goal: a running FastAPI service with a migrated Supabase schema.
 
-- [ ] Init backend deps and project layout ([backend-setup](guides/backend-setup.md))
-- [ ] `app/config.py` — settings module, fail fast on missing env vars
-- [ ] `app/main.py` — FastAPI app, CORS, health check (`GET /health`)
-- [ ] SQLAlchemy models in `app/database/models.py`:
-  - [ ] `profiles`
-  - [ ] `source_documents`
-  - [ ] `document_chunks` (embedding + generated `tsvector`)
-  - [ ] `chat_threads`
-  - [ ] `chat_messages`
-  - [ ] `message_citations`
-- [ ] Alembic init + first migration:
-  - [ ] `create extension if not exists vector`
-  - [ ] `vector(1536)` embedding column
-  - [ ] generated `tsvector` column on chunks, using the `portuguese` text search configuration
-  - [ ] HNSW index (vector) + GIN index (full-text)
-  - [ ] RLS policies (analysts see only their own chats)
-- [ ] `uv run alembic upgrade head` against Supabase direct connection (not the pooler URL)
-- [ ] `app/database/supabase.py` — user-scoped and service-role clients
-- [ ] Verify: `uv run uvicorn app.main:app --reload` → health check returns 200
+- [x] Init backend deps and project layout ([backend-setup](guides/backend-setup.md))
+- [x] `app/config.py` — settings module, fail fast on missing env vars
+- [x] `app/main.py` — FastAPI app, CORS, health check (`GET /health`)
+- [x] SQLAlchemy models in `app/database/models.py`:
+  - [x] `profiles`
+  - [x] `source_documents`
+  - [x] `document_chunks` (embedding + generated `tsvector`)
+  - [x] `chat_threads`
+  - [x] `chat_messages`
+  - [x] `message_citations`
+- [x] Alembic init + first migration:
+  - [x] `create extension if not exists vector`
+  - [x] `vector(1536)` embedding column
+  - [x] generated `tsvector` column on chunks, using the `portuguese` text search configuration
+  - [x] HNSW index (vector) + GIN index (full-text)
+  - [x] RLS policies (analysts see only their own chats)
+- [x] `uv run alembic upgrade head` against Supabase direct connection (not the pooler URL)
+- [x] `app/database/supabase.py` — user-scoped and service-role clients
+- [x] Verify: `uv run uvicorn app.main:app --reload` → health check returns 200
 
 ---
 
