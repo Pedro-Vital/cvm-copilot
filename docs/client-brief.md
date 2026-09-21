@@ -44,15 +44,15 @@ An internal chatbot — call it **CVM Copilot** — where any Ipê Capital analy
 
 ## Example analyst questions
 
-The current sample corpus contains **DFP** (Demonstrações Financeiras Padronizadas) filings for Vale, Petrobras, Itaú Unibanco, Banco do Brasil, and WEG across fiscal years 2021–2025. The bot should be able to handle questions like these with cited answers and underlying passages:
+The current sample corpus contains **DFP** (Demonstrações Financeiras Padronizadas) filings for Vale, Itaú Unibanco, Magazine Luiza, Suzano, and WEG across fiscal years 2021–2025. The bot should be able to handle questions like these with cited answers and underlying passages:
 
 1. Como evoluiu a receita líquida da Vale por segmento (minério de ferro, níquel, cobre etc.) entre 2021 e 2025, segundo as notas explicativas das DFPs?
-2. Para a Petrobras, como se compararam a margem EBITDA e o lucro líquido entre 2021 e 2025, e quais fatores as notas explicativas apontam como principais responsáveis pelas variações?
-3. Como evoluíram a carteira de crédito e a inadimplência (PDD) do Itaú Unibanco e do Banco do Brasil entre 2021 e 2025, conforme divulgado nas notas explicativas das DFPs?
+2. Para a Suzano, como se compararam a margem EBITDA e o lucro líquido entre 2021 e 2025, e quais fatores as notas explicativas apontam como principais responsáveis pelas variações (ex.: preço da celulose, câmbio)?
+3. Como evoluíram a carteira de crédito e a inadimplência (PDD) do Itaú Unibanco entre 2021 e 2025, conforme divulgado nas notas explicativas das DFPs?
 4. Quais foram os principais itens de despesas operacionais da WEG entre 2021 e 2025, e como cresceram em relação à receita líquida no mesmo período?
-5. Compare o CAPEX e os investimentos divulgados nas demonstrações de fluxo de caixa da Vale e da Petrobras entre 2021 e 2025 — o que isso sugere sobre o ritmo de investimento de cada uma?
-6. Para o Banco do Brasil, como evoluíram o patrimônio líquido e os dividendos/JCP distribuídos, segundo a DMPL, entre 2021 e 2025?
-7. Quais contingências e provisões (cíveis, tributárias, trabalhistas) a Petrobras divulgou em suas notas explicativas entre 2021 e 2025, e como o valor total provisionado mudou?
+5. Compare o CAPEX e os investimentos divulgados nas demonstrações de fluxo de caixa da Vale e da Suzano entre 2021 e 2025 — o que isso sugere sobre o ritmo de investimento de cada uma (expansão em minério vs. capacidade de celulose)?
+6. Para a Magazine Luiza, como evoluíram o patrimônio líquido e os dividendos/JCP distribuídos, segundo a DMPL, entre 2021 e 2025?
+7. Quais contingências e provisões (cíveis, tributárias, trabalhistas) a Suzano divulgou em suas notas explicativas entre 2021 e 2025, e como o valor total provisionado mudou?
 8. Para a Vale, como as notas explicativas descreveram operações com partes relacionadas e instrumentos financeiros derivativos entre 2021 e 2025?
 9. Para cada uma das cinco empresas, resuma a composição do resultado financeiro (receitas e despesas financeiras) na DRE mais recente e identifique mudanças relevantes em relação ao exercício anterior.
 10. Se um analista perguntar se as DFPs comprovam que a WEG melhorou sua eficiência operacional entre 2021 e 2025, quais evidências existem no corpus, e onde o assistente deve se recusar a inferir além do que está nas demonstrações?

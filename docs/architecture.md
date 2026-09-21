@@ -290,7 +290,7 @@ Supabase tables should be small and product-oriented:
 - embedding vector
 - generated `tsvector` for full-text search
 - token count
-- metadata JSON for ticker, company, filing type, filing date, year, `numero_protocolo` (the CVM filing identifier), page, section, and source offsets
+- metadata JSON for ticker, company, filing type, filing date, year, page, section, and source offsets
 
 Hybrid retrieval runs two bounded queries against `document_chunks`: a semantic `pgvector` query and a Postgres full-text query. The backend fuses those ranked lists with Reciprocal Rank Fusion, then fetches the selected chunks and neighboring context for grounding.
 

@@ -65,8 +65,9 @@ To be added during the build. Setup guides:
 Unlike SEC EDGAR, CVM doesn't expose a simple per-filing API to script against, so the sample
 corpus is built by manual download instead of a crawler:
 
-1. Pick a small set of B3-listed companies and fiscal years (e.g. VALE3, PETR4, ITUB4, BBAS3,
-   WEGE3 for 2021–2025).
+1. Pick a small set of B3-listed companies and fiscal years — this project's sample set is
+   ITUB4 (Itaú Unibanco), MGLU3 (Magazine Luiza), SUZB3 (Suzano), VALE3 (Vale), and WEGE3 (WEG)
+   for 2021–2025.
 2. For each company-year, download the filed **DFP** PDF from CVM's filing-search system (search
    by company name or CNPJ, filter to DFP, pick the fiscal year) into `data/downloads/<year>/`.
 3. Record each filing in `data/downloads/manifest.json`, following this shape:
@@ -84,7 +85,6 @@ corpus is built by manual download instead of a crawler:
          "form": "DFP",
          "reference_period": "2024-12-31",
          "fiscal_year": 2024,
-         "numero_protocolo": "...",
          "local_path": "2024/vale3_dfp_2024-12-31.pdf",
          "source_url": "..."
        }
@@ -93,8 +93,12 @@ corpus is built by manual download instead of a crawler:
    ```
 
    `codigo_cvm` is the company's permanent CVM identifier (stable across years, like a US CIK).
-   `numero_protocolo` identifies this specific filed document — use it as the uniqueness key for
-   ingestion, the same role `accession_number` plays for SEC filings.
+   For this fixed corpus, `ticker + fiscal_year` is unique, so that pair is the ingestion
+   dedup key. CVM also assigns a `numero_protocolo` to each individual submission (the same
+   role `accession_number` plays for SEC filings), but it's left out of this version — pulling
+   it requires a manual per-filing lookup on CVM's site. It's worth adding back in a future
+   version, since it becomes the only reliable per-version key once *retificações* (restated
+   DFP resubmissions) enter the corpus.
 
 4. Convert downloaded PDFs to Markdown:
 

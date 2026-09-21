@@ -11,7 +11,6 @@ __pycache__/
 build/
 develop-eggs/
 dist/
-downloads/
 eggs/
 .eggs/
 lib/
@@ -216,3 +215,7 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Local data corpus payloads (see data/README.md) — manifests stay tracked, downloaded/converted files don't
+data/downloads/**/*.pdf
+data/markdown/**/*.md
