@@ -2,7 +2,9 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 
 import { ProtectedRoute } from '@/components/ProtectedRoute'
 import { AuthProvider } from '@/lib/auth-provider'
-import { Home } from '@/pages/Home'
+import { ChatEmpty } from '@/pages/chat/ChatEmpty'
+import { ChatLayout } from '@/pages/chat/ChatLayout'
+import { ChatThread } from '@/pages/chat/ChatThread'
 import { SignIn } from '@/pages/SignIn'
 import { SignUp } from '@/pages/SignUp'
 
@@ -14,14 +16,18 @@ function App() {
           <Route path="/login" element={<SignIn />} />
           <Route path="/signup" element={<SignUp />} />
           <Route
-            path="/"
+            path="/chat"
             element={
               <ProtectedRoute>
-                <Home />
+                <ChatLayout />
               </ProtectedRoute>
             }
-          />
-          <Route path="*" element={<Navigate to="/" replace />} />
+          >
+            <Route index element={<ChatEmpty />} />
+            <Route path=":threadId" element={<ChatThread />} />
+          </Route>
+          <Route path="/" element={<Navigate to="/chat" replace />} />
+          <Route path="*" element={<Navigate to="/chat" replace />} />
         </Routes>
       </AuthProvider>
     </BrowserRouter>

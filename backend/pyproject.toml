@@ -22,6 +22,10 @@ dependencies = [
 add-bounds = "exact"
 exclude-newer = "7 days"
 
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = ["integration: requires live Supabase/OpenAI credentials"]
+
 [dependency-groups]
 dev = [
     "pytest==9.1.1",
