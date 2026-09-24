@@ -133,18 +133,18 @@ Goal: an analyst question returns ranked, relevant source passages.
 
 Goal: grounded answers with enforced citations — the core product contract.
 
-- [ ] `assistant/instructions.md` — product contract (cite everything, refuse to invent, no stock picks, answer in Portuguese by default)
-- [ ] PydanticAI agent with typed deps (`DocumentAgentDeps`) and output (`GroundedAnswer`)
+- [x] `assistant/instructions.md` — product contract (cite everything, refuse to invent, no stock picks, answer in Portuguese by default)
+- [x] PydanticAI agent with typed deps (`DocumentAgentDeps`) and output (`GroundedAnswer`); grounding runs as an `output_validator`, so rejected citations go back to the model to fix (`ModelRetry`) before the turn fails closed
 - [x] Agent tools: `search_filings`, `read_chunks`, `read_surrounding_chunks` (built in Phase 5)
-- [ ] `chat/orchestrator.py` — one turn: retrieve → agent → validate → stream → persist
-- [ ] `grounding/validator.py` — every citation maps to a retrieved passage; fail closed on violation
-- [ ] `chat/streaming.py` — AI SDK-compatible stream (text deltas + citation metadata parts)
-- [ ] Persist `message_citations` linked to assistant messages
-- [ ] Unit tests: citation validation, grounding enforcement, message conversion
-- [ ] Verify against [client-brief example questions](client-brief.md#example-analyst-questions):
-  - [ ] Answers cite specific filings and pages
-  - [ ] Under-specified questions get an "evidência insuficiente" (not-enough-evidence) response
-  - [ ] Question 10 (WEG operational efficiency) refuses to infer beyond what the DFPs state
+- [x] `chat/orchestrator.py` — one turn: agent (retrieval + validation inside) → persist → stream; tool calls surface as transient `data-status` parts
+- [x] `grounding/validator.py` — every citation maps to a retrieved passage and quotes it verbatim; fail closed on violation (deterministic, no LLM judge)
+- [x] `chat/streaming.py` — AI SDK-compatible stream (text deltas + citation metadata parts). Text is revealed after validation, not token-by-token, since an unverified answer must never be shown
+- [x] Persist `message_citations` linked to assistant messages (migration adds `citation_index`, `excerpt`, INSERT RLS policy)
+- [x] Unit tests: citation validation, grounding enforcement (real agent + scripted `FunctionModel`), orchestrator stream/persistence, message conversion
+- [x] Verify against [client-brief example questions](client-brief.md#example-analyst-questions) (`uv run python -m scripts.smoke_assistant`):
+  - [x] Answers cite specific filings and pages
+  - [x] Under-specified questions get an "evidência insuficiente" (not-enough-evidence) response
+  - [x] Question 10 (WEG operational efficiency) refuses to infer beyond what the DFPs state
 
 ---
 

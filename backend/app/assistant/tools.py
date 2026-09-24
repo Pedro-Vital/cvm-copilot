@@ -19,6 +19,10 @@ from app.retrieval.types import (
     format_passages_for_agent,
 )
 
+# Past this, a model hunting for a perfect table keeps searching until it
+# hits the request limit and the turn fails; stopping it here makes it answer
+# with what it has and name the gaps instead.
+MAX_SEARCHES_PER_TURN = 8
 MAX_SURROUNDING_RADIUS = 3
 MAX_READ_CHUNKS = 10
 
@@ -36,7 +40,13 @@ def _parse_chunk_ids(chunk_ids: list[str]) -> list[UUID] | str:
 
 
 def _register_and_format(
-    ctx: RunContext[DocumentAgentDeps], tool: str, started: float, passages: list[RetrievedPassage], **log_fields
+    ctx: RunContext[DocumentAgentDeps],
+    tool: str,
+    started: float,
+    passages: list[RetrievedPassage],
+    *,
+    full_text: bool = False,
+    **log_fields,
 ) -> str:
     ctx.deps.registry.register_many(passages)
     logger.info(
@@ -46,7 +56,7 @@ def _register_and_format(
         duration_ms=round((time.perf_counter() - started) * 1000),
         **log_fields,
     )
-    return format_passages_for_agent(passages)
+    return format_passages_for_agent(passages, full_text=full_text)
 
 
 async def search_filings(
@@ -63,6 +73,13 @@ async def search_filings(
     (2021–2025) whenever the question names them. When comparing companies,
     call this once per ticker so every company gets its own results.
     """
+    if ctx.deps.searches_run >= MAX_SEARCHES_PER_TURN:
+        return (
+            f"Error: search limit reached ({MAX_SEARCHES_PER_TURN} searches). Do not search again. "
+            "Answer now with the passages already retrieved, and state which items or years were not found."
+        )
+    ctx.deps.searches_run += 1
+
     started = time.perf_counter()
     filters = SearchFilters(ticker=ticker, fiscal_years=fiscal_years)
     passages = await ctx.deps.retriever.search(query, filters=filters)
@@ -89,7 +106,7 @@ async def read_chunks(ctx: RunContext[DocumentAgentDeps], chunk_ids: list[str]) 
     passages = await ctx.deps.retriever.read_chunks(parsed)
     if not passages:
         return "Error: none of the requested chunks were found."
-    return _register_and_format(ctx, "read_chunks", started, passages, chunk_ids=chunk_ids)
+    return _register_and_format(ctx, "read_chunks", started, passages, full_text=True, chunk_ids=chunk_ids)
 
 
 async def read_surrounding_chunks(ctx: RunContext[DocumentAgentDeps], chunk_id: str, radius: int = 1) -> str:
@@ -108,4 +125,6 @@ async def read_surrounding_chunks(ctx: RunContext[DocumentAgentDeps], chunk_id: 
     passages = await ctx.deps.retriever.read_surrounding(parsed[0], radius)
     if not passages:
         return f"Error: chunk {chunk_id} not found."
-    return _register_and_format(ctx, "read_surrounding_chunks", started, passages, chunk_id=chunk_id, radius=radius)
+    return _register_and_format(
+        ctx, "read_surrounding_chunks", started, passages, full_text=True, chunk_id=chunk_id, radius=radius
+    )

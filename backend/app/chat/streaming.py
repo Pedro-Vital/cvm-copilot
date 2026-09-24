@@ -2,6 +2,8 @@
 
 Wire format verified against ai-sdk.dev docs: each part is a JSON object
 framed as `data: <json>\\n\\n`, terminated by a literal `data: [DONE]\\n\\n`.
+Custom parts use `data-<name>`; `transient` ones reach the client's onData
+callback but aren't stored on the message.
 """
 
 import asyncio
@@ -17,21 +19,45 @@ SSE_HEADERS = {
     "X-Accel-Buffering": "no",
 }
 
+WORDS_PER_DELTA = 4
+
 
 def format_sse(data: dict) -> str:
-    return f"data: {json.dumps(data)}\n\n"
+    return f"data: {json.dumps(data, ensure_ascii=False)}\n\n"
 
 
-async def stream_text_reply(message_id: str, text: str) -> AsyncIterator[str]:
-    yield format_sse({"type": "start", "messageId": message_id})
+def start_event(message_id: str) -> str:
+    return format_sse({"type": "start", "messageId": message_id})
+
+
+def finish_events() -> list[str]:
+    return [format_sse({"type": "finish"}), STREAM_DONE]
+
+
+def status_event(message: str) -> str:
+    return format_sse({"type": "data-status", "data": {"message": message}, "transient": True})
+
+
+def error_event(error_text: str) -> str:
+    return format_sse({"type": "error", "errorText": error_text})
+
+
+def data_part_event(part: dict) -> str:
+    return format_sse(part)
+
+
+async def stream_text(message_id: str, text: str) -> AsyncIterator[str]:
+    """Text in a few words per delta.
+
+    The answer is complete (and grounding-validated) before streaming starts,
+    so this only paces the reveal; keep it short.
+    """
     yield format_sse({"type": "text-start", "id": message_id})
-
     words = text.split(" ")
-    for index, word in enumerate(words):
-        delta = word if index == len(words) - 1 else f"{word} "
+    for start in range(0, len(words), WORDS_PER_DELTA):
+        delta = " ".join(words[start : start + WORDS_PER_DELTA])
+        if start + WORDS_PER_DELTA < len(words):
+            delta += " "
         yield format_sse({"type": "text-delta", "id": message_id, "delta": delta})
-        await asyncio.sleep(0.05)
-
+        await asyncio.sleep(0.02)
     yield format_sse({"type": "text-end", "id": message_id})
-    yield format_sse({"type": "finish"})
-    yield STREAM_DONE

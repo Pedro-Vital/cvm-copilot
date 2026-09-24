@@ -33,3 +33,4 @@ class DocumentAgentDeps:
     registry: TurnRegistry
     user_id: str
     thread_id: str
+    searches_run: int = 0

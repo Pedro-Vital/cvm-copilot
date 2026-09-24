@@ -1,30 +1,85 @@
-"""Coordinates one /chat/stream turn: stream the reply, then persist both sides.
+"""Coordinates one /chat/stream turn: agent (with grounding) → persist → stream.
 
 The caller (the route handler) is responsible for the thread ownership check —
 it must happen before a StreamingResponse is constructed, since the 200 status
-and headers are already sent once this generator starts yielding.
+and headers are already sent once this generator starts yielding. For the same
+reason, failures after that point become an AI SDK `error` event, not an HTTP
+error.
 """
 
 from collections.abc import AsyncIterator
 from uuid import uuid4
 
+import structlog
 from fastapi import HTTPException, status
+from pydantic_ai import Agent, UsageLimits
+from pydantic_ai.exceptions import UnexpectedModelBehavior, UsageLimitExceeded
+from pydantic_ai.messages import ToolCallPart
 from supabase import AsyncClient
 
-from app.chat.messages import UIMessage, build_assistant_message, extract_text
-from app.chat.streaming import stream_text_reply
-from app.database.chats import insert_message, touch_thread
-
-STUB_REPLY = (
-    "Esta é uma resposta de teste do CVM Copilot. "
-    "A geração de respostas com base nos documentos da CVM ainda não foi implementada."
+from app.assistant.agent import DocumentAgent
+from app.assistant.deps import DocumentAgentDeps, TurnRegistry
+from app.chat.messages import (
+    UIMessage,
+    build_assistant_message,
+    citation_parts,
+    extract_text,
+    to_model_history,
 )
+from app.chat.streaming import (
+    STREAM_DONE,
+    data_part_event,
+    error_event,
+    finish_events,
+    start_event,
+    status_event,
+    stream_text,
+)
+from app.config import settings
+from app.database.chats import insert_citations, insert_message, touch_thread
+from app.retrieval.retriever import DocumentRetriever
+
+GROUNDING_FAILURE_MESSAGE = (
+    "Encontrei trechos relevantes nas DFPs, mas não consegui verificar a resposta contra eles. "
+    "Tente uma pergunta mais específica ou divida-a em partes menores."
+)
+USAGE_LIMIT_MESSAGE = (
+    "A pergunta exigiu buscas demais para uma única resposta. "
+    "Tente restringir a empresa, o período ou o tema."
+)
+GENERIC_FAILURE_MESSAGE = "Não foi possível gerar a resposta agora. Tente novamente em instantes."
+
+logger = structlog.get_logger(__name__)
+
+
+def tool_status(part: ToolCallPart) -> str:
+    args = part.args_as_dict()
+    if part.tool_name == "search_filings":
+        scope = " ".join(
+            bit
+            for bit in (
+                f"da {args['ticker']}" if args.get("ticker") else "",
+                f"({', '.join(map(str, args['fiscal_years']))})" if args.get("fiscal_years") else "",
+            )
+            if bit
+        )
+        return f"Buscando nas DFPs{' ' + scope if scope else ''}: “{args.get('query', '')}”"
+    if part.tool_name == "read_chunks":
+        return "Lendo trechos completos…"
+    if part.tool_name == "read_surrounding_chunks":
+        return "Lendo o contexto ao redor do trecho…"
+    # The output tool: the model has drafted its answer and grounding runs next.
+    return "Verificando as citações…"
 
 
 async def run_chat_turn(
     thread_id: str,
     messages: list[UIMessage],
     user_client: AsyncClient,
+    *,
+    agent: DocumentAgent,
+    retriever: DocumentRetriever,
+    user_id: str,
 ) -> AsyncIterator[str]:
     if not messages or messages[-1].role != "user":
         raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, "Expected a trailing user message")
@@ -35,13 +90,68 @@ async def run_chat_turn(
         raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, "Message has no text content")
 
     assistant_message_id = str(uuid4())
+    yield start_event(assistant_message_id)
+    yield status_event("Analisando a pergunta…")
 
-    async for chunk in stream_text_reply(assistant_message_id, STUB_REPLY):
-        yield chunk
+    deps = DocumentAgentDeps(retriever=retriever, registry=TurnRegistry(), user_id=user_id, thread_id=thread_id)
+    log = logger.bind(thread_id=thread_id, user_id=user_id)
+    try:
+        async with agent.iter(
+            user_text,
+            deps=deps,
+            message_history=to_model_history(messages[:-1]),
+            usage_limits=UsageLimits(request_limit=settings.agent_request_limit),
+        ) as run:
+            async for node in run:
+                if Agent.is_call_tools_node(node):
+                    for part in node.model_response.parts:
+                        if isinstance(part, ToolCallPart):
+                            yield status_event(tool_status(part))
+        answer = run.result.output
+    # The response is already a 200 stream, so every failure must become an
+    # error event — letting it propagate would just cut the stream off.
+    except UnexpectedModelBehavior as exc:
+        log.warning("grounding_failed", error=str(exc))
+        yield error_event(GROUNDING_FAILURE_MESSAGE)
+        yield STREAM_DONE
+        return
+    except UsageLimitExceeded as exc:
+        log.warning("agent_usage_limit_exceeded", error=str(exc))
+        yield error_event(USAGE_LIMIT_MESSAGE)
+        yield STREAM_DONE
+        return
+    except Exception:
+        log.exception("agent_run_failed")
+        yield error_event(GENERIC_FAILURE_MESSAGE)
+        yield STREAM_DONE
+        return
 
-    await insert_message(user_client, thread_id, "user", user_text, user_message.model_dump(by_alias=True))
-    assistant_message = build_assistant_message(assistant_message_id, STUB_REPLY)
-    await insert_message(
-        user_client, thread_id, "assistant", STUB_REPLY, assistant_message.model_dump(by_alias=True)
+    usage = run.result.usage
+    log.info(
+        "agent_run_done",
+        requests=usage.requests,
+        tool_calls=usage.tool_calls,
+        input_tokens=usage.input_tokens,
+        output_tokens=usage.output_tokens,
+        citations=len(answer.citations),
+        insufficient_evidence=answer.insufficient_evidence,
     )
+
+    parts = citation_parts(answer, deps.registry)
+    assistant_message = build_assistant_message(assistant_message_id, answer.answer, parts)
+
+    # Persist before revealing the text: the answer is already validated, and
+    # a client disconnecting mid-reveal shouldn't lose a paid-for, grounded turn.
+    await insert_message(user_client, thread_id, "user", user_text, user_message.model_dump(by_alias=True, exclude_none=True))
+    assistant_row = await insert_message(
+        user_client, thread_id, "assistant", answer.answer, assistant_message.model_dump(by_alias=True, exclude_none=True)
+    )
+    await insert_citations(user_client, assistant_row["id"], answer.citations)
     await touch_thread(user_client, thread_id)
+
+    async for event in stream_text(assistant_message_id, answer.answer):
+        yield event
+    for part in parts:
+        yield data_part_event(part.model_dump(by_alias=True, exclude_none=True))
+    for event in finish_events():
+        yield event

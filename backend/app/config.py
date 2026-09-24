@@ -37,6 +37,20 @@ class Settings(BaseSettings):
     openai_api_key: str
     openai_embedding_model: str = "text-embedding-3-small"
     openai_embedding_dimensions: int = 1536
+    # openai_chat_model: str = "gpt-5.5"
+    openai_chat_model: str = "gpt-5.4-mini"
+    # Each agent turn is several sequential model rounds, so per-round
+    # reasoning time dominates latency; retrieval grounding does the heavy
+    # lifting, not deliberation.
+    openai_reasoning_effort: str = "low"
+
+    # --- Assistant ---
+    # Caps model round-trips per turn (tool rounds + output retries) so a
+    # confused run fails instead of looping.
+    agent_request_limit: int = 16
+    # How many times the model may fix citations rejected by grounding
+    # validation before the turn fails closed.
+    agent_output_retries: int = 2
 
     # --- Retrieval ---
     # Over-fetch from each search path before fusion so a chunk ranked low by

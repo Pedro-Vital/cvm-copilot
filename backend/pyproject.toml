@@ -25,6 +25,8 @@ exclude-newer = "7 days"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+# Lets tests import shared helpers from tests/support/.
+pythonpath = ["."]
 markers = ["integration: requires live Supabase/OpenAI credentials"]
 
 [dependency-groups]

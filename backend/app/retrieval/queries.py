@@ -61,23 +61,12 @@ def build_full_text_search_sql(filter_sql: str) -> str:
     """
 
 
-# HNSW returns at most `ef_search` (default 40) candidates and applies WHERE
-# filters *after* the index scan, so a ticker filter can leave zero rows.
-# pgvector 0.8 iterative scans keep walking the index until `limit` rows pass
-# the filters; strict_order keeps results exactly distance-ordered. Both
-# settings are transaction-local (is_local => true), so they don't leak into
-# other queries on the pooled connection.
-HNSW_SETTINGS_SQL = """
-    SELECT set_config('hnsw.iterative_scan', 'strict_order', true),
-           set_config('hnsw.ef_search', :ef_search, true)
-"""
-
-
+# Relies on the HNSW iterative-scan settings applied to every connection in
+# app.database.session; without them a filtered query can return zero rows.
 async def semantic_search(
     session: AsyncSession, query_vec: list[float], *, limit: int, filters: SearchFilters | None = None
 ) -> list[UUID]:
     filter_sql, params = build_filters(filters)
-    await session.execute(text(HNSW_SETTINGS_SQL), {"ef_search": str(max(limit, 40))})
     result = await session.execute(
         text(build_semantic_search_sql(filter_sql)),
         {"query_vec": str(query_vec), "limit": limit, **params},

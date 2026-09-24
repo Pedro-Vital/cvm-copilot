@@ -3,7 +3,7 @@ from datetime import datetime
 from typing import TYPE_CHECKING
 
 from pgvector.sqlalchemy import Vector
-from sqlalchemy import ForeignKey, Text, text
+from sqlalchemy import ForeignKey, Text, UniqueConstraint, text
 from sqlalchemy.dialects.postgresql import JSONB, TSVECTOR
 from sqlalchemy.dialects.postgresql import UUID as PGUUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -20,11 +20,13 @@ class DocumentChunk(Base):
     """A retrieval-ready passage of a source document."""
 
     __tablename__ = "document_chunks"
+    __table_args__ = (
+        UniqueConstraint("document_id", "chunk_index", name="uq_document_chunks_document_id_chunk_index"),
+    )
 
     id: Mapped[uuid.UUID] = mapped_column(PGUUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    document_id: Mapped[uuid.UUID] = mapped_column(
-        ForeignKey("source_documents.id", ondelete="CASCADE"), index=True
-    )
+    # Indexed via the (document_id, chunk_index) unique constraint's leading column.
+    document_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("source_documents.id", ondelete="CASCADE"))
     chunk_index: Mapped[int]
     page: Mapped[int | None]
     section: Mapped[str | None] = mapped_column(Text)
