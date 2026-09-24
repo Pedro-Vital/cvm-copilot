@@ -118,13 +118,14 @@ Goal: the CVM DFP corpus is parsed, chunked, embedded, and stored in Supabase.
 
 Goal: an analyst question returns ranked, relevant source passages.
 
-- [ ] `retrieval/queries.py` — pgvector semantic search over `document_chunks`
-- [ ] `retrieval/queries.py` — Postgres full-text search over `search_vector` (`portuguese` config)
-- [ ] `retrieval/fusion.py` — Reciprocal Rank Fusion in Python
-- [ ] `retrieval/retriever.py` — query → fused ranked passages + neighbor chunks
-- [ ] Unit tests: fusion ranking, query assembly (mock DB)
-- [ ] Integration test (optional, `@pytest.mark.integration`): real query against ingested corpus
-- [ ] Verify: test queries from [client-brief](client-brief.md#example-analyst-questions) return relevant chunks (manual or scripted)
+- [x] `retrieval/queries.py` — pgvector semantic search over `document_chunks` (HNSW iterative scan so ticker/year filters don't starve results)
+- [x] `retrieval/queries.py` — Postgres full-text search over `search_vector` (`portuguese` config; stemmed lexemes OR'd into a `tsquery`, ranked by `ts_rank_cd`)
+- [x] `retrieval/fusion.py` — Reciprocal Rank Fusion in Python
+- [x] `retrieval/retriever.py` — query → fused ranked passages + neighbor chunks
+- [x] `assistant/deps.py` + `assistant/tools.py` — `DocumentAgentDeps`, `TurnRegistry` (citation allowlist), and the `search_filings` / `read_chunks` / `read_surrounding_chunks` tools (pulled forward from Phase 6)
+- [x] Unit tests: fusion ranking, query assembly (mock DB), retriever, agent tools
+- [x] Integration test (optional, `@pytest.mark.integration`): real query against ingested corpus
+- [x] Verify: test queries from [client-brief](client-brief.md#example-analyst-questions) return relevant chunks (`uv run python -m scripts.smoke_retrieval`)
 
 ---
 
@@ -134,7 +135,7 @@ Goal: grounded answers with enforced citations — the core product contract.
 
 - [ ] `assistant/instructions.md` — product contract (cite everything, refuse to invent, no stock picks, answer in Portuguese by default)
 - [ ] PydanticAI agent with typed deps (`DocumentAgentDeps`) and output (`GroundedAnswer`)
-- [ ] Agent tools: `search_filings`, `read_chunk`, `read_surrounding_chunks`
+- [x] Agent tools: `search_filings`, `read_chunks`, `read_surrounding_chunks` (built in Phase 5)
 - [ ] `chat/orchestrator.py` — one turn: retrieve → agent → validate → stream → persist
 - [ ] `grounding/validator.py` — every citation maps to a retrieved passage; fail closed on violation
 - [ ] `chat/streaming.py` — AI SDK-compatible stream (text deltas + citation metadata parts)

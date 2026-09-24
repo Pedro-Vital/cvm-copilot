@@ -29,8 +29,8 @@ from supabase import AsyncClient
 
 from app.config import settings
 from app.database.supabase import get_service_client
+from app.retrieval.embeddings import embed_texts
 from ingest.chunking import chunk_document
-from ingest.embeddings import embed_texts
 
 MARKDOWN_DIR = Path(__file__).parent.parent.parent / "data" / "markdown"
 CHUNK_INSERT_BATCH_SIZE = 200

@@ -38,6 +38,14 @@ class Settings(BaseSettings):
     openai_embedding_model: str = "text-embedding-3-small"
     openai_embedding_dimensions: int = 1536
 
+    # --- Retrieval ---
+    # Over-fetch from each search path before fusion so a chunk ranked low by
+    # one retriever but high by the other still reaches RRF.
+    retrieval_candidate_k: int = 50
+    retrieval_top_k: int = 10
+    retrieval_rrf_k: int = 60
+    retrieval_neighbor_radius: int = 1
+
     # --- Server ---
     allowed_origins: Annotated[list[str], NoDecode] = ["http://localhost:5173"]
 

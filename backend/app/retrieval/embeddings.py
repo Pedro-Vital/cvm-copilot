@@ -1,4 +1,8 @@
-"""OpenAI embedding generation for document chunks."""
+"""OpenAI embeddings, shared by ingestion (chunks) and retrieval (queries).
+
+One code path for both sides so the model and dimensions can't drift apart —
+a query vector is only comparable to chunk vectors from the same model.
+"""
 
 from openai import AsyncOpenAI
 
@@ -20,3 +24,8 @@ async def embed_texts(client: AsyncOpenAI, texts: list[str]) -> list[list[float]
         )
         embeddings.extend(item.embedding for item in response.data)
     return embeddings
+
+
+async def embed_query(client: AsyncOpenAI, text: str) -> list[float]:
+    [embedding] = await embed_texts(client, [text])
+    return embedding
