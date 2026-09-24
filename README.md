@@ -103,7 +103,7 @@ corpus is built by manual download instead of a crawler:
 4. Convert downloaded PDFs to Markdown:
 
    ```bash
-   uv run data/convert_to_markdown.py
+   uv run --project backend data/convert_to_markdown.py
    ```
 
    This calls Docling's `DocumentConverter` directly on each PDF (the same library and API used

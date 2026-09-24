@@ -1,0 +1,281 @@
+{
+  "source": "CVM",
+  "form": "DFP",
+  "filings": [
+    {
+      "ticker": "ITUB4",
+      "cnpj": "60.872.504/0001-23",
+      "company_name": "Itaú Unibanco Holding S.A.",
+      "codigo_cvm": "19348",
+      "form": "DFP",
+      "reference_period": "2021-12-31",
+      "fiscal_year": 2021,
+      "local_path": "2021/ITAU.md",
+      "source_url": "https://www.rad.cvm.gov.br/ENETWEB/frmConsultaExternaCVM.aspx?tipoconsulta=CVM&codigoCVM=19348"
+    },
+    {
+      "ticker": "ITUB4",
+      "cnpj": "60.872.504/0001-23",
+      "company_name": "Itaú Unibanco Holding S.A.",
+      "codigo_cvm": "19348",
+      "form": "DFP",
+      "reference_period": "2022-12-31",
+      "fiscal_year": 2022,
+      "local_path": "2022/ITAU.md",
+      "source_url": "https://www.rad.cvm.gov.br/ENETWEB/frmConsultaExternaCVM.aspx?tipoconsulta=CVM&codigoCVM=19348"
+    },
+    {
+      "ticker": "ITUB4",
+      "cnpj": "60.872.504/0001-23",
+      "company_name": "Itaú Unibanco Holding S.A.",
+      "codigo_cvm": "19348",
+      "form": "DFP",
+      "reference_period": "2023-12-31",
+      "fiscal_year": 2023,
+      "local_path": "2023/ITAU.md",
+      "source_url": "https://www.rad.cvm.gov.br/ENETWEB/frmConsultaExternaCVM.aspx?tipoconsulta=CVM&codigoCVM=19348"
+    },
+    {
+      "ticker": "ITUB4",
+      "cnpj": "60.872.504/0001-23",
+      "company_name": "Itaú Unibanco Holding S.A.",
+      "codigo_cvm": "19348",
+      "form": "DFP",
+      "reference_period": "2024-12-31",
+      "fiscal_year": 2024,
+      "local_path": "2024/ITAU.md",
+      "source_url": "https://www.rad.cvm.gov.br/ENETWEB/frmConsultaExternaCVM.aspx?tipoconsulta=CVM&codigoCVM=19348"
+    },
+    {
+      "ticker": "ITUB4",
+      "cnpj": "60.872.504/0001-23",
+      "company_name": "Itaú Unibanco Holding S.A.",
+      "codigo_cvm": "19348",
+      "form": "DFP",
+      "reference_period": "2025-12-31",
+      "fiscal_year": 2025,
+      "local_path": "2025/ITAU.md",
+      "source_url": "https://www.rad.cvm.gov.br/ENETWEB/frmConsultaExternaCVM.aspx?tipoconsulta=CVM&codigoCVM=19348"
+    },
+    {
+      "ticker": "MGLU3",
+      "cnpj": "47.960.950/0001-21",
+      "company_name": "Magazine Luiza S.A.",
+      "codigo_cvm": "22470",
+      "form": "DFP",
+      "reference_period": "2021-12-31",
+      "fiscal_year": 2021,
+      "local_path": "2021/MAGAZINE-LUIZA.md",
+      "source_url": "https://www.rad.cvm.gov.br/ENETWEB/frmConsultaExternaCVM.aspx?tipoconsulta=CVM&codigoCVM=22470"
+    },
+    {
+      "ticker": "MGLU3",
+      "cnpj": "47.960.950/0001-21",
+      "company_name": "Magazine Luiza S.A.",
+      "codigo_cvm": "22470",
+      "form": "DFP",
+      "reference_period": "2022-12-31",
+      "fiscal_year": 2022,
+      "local_path": "2022/MAGAZINE-LUIZA.md",
+      "source_url": "https://www.rad.cvm.gov.br/ENETWEB/frmConsultaExternaCVM.aspx?tipoconsulta=CVM&codigoCVM=22470"
+    },
+    {
+      "ticker": "MGLU3",
+      "cnpj": "47.960.950/0001-21",
+      "company_name": "Magazine Luiza S.A.",
+      "codigo_cvm": "22470",
+      "form": "DFP",
+      "reference_period": "2023-12-31",
+      "fiscal_year": 2023,
+      "local_path": "2023/MAGAZINE-LUIZA.md",
+      "source_url": "https://www.rad.cvm.gov.br/ENETWEB/frmConsultaExternaCVM.aspx?tipoconsulta=CVM&codigoCVM=22470"
+    },
+    {
+      "ticker": "MGLU3",
+      "cnpj": "47.960.950/0001-21",
+      "company_name": "Magazine Luiza S.A.",
+      "codigo_cvm": "22470",
+      "form": "DFP",
+      "reference_period": "2024-12-31",
+      "fiscal_year": 2024,
+      "local_path": "2024/MAGAZINE-LUIZA.md",
+      "source_url": "https://www.rad.cvm.gov.br/ENETWEB/frmConsultaExternaCVM.aspx?tipoconsulta=CVM&codigoCVM=22470"
+    },
+    {
+      "ticker": "MGLU3",
+      "cnpj": "47.960.950/0001-21",
+      "company_name": "Magazine Luiza S.A.",
+      "codigo_cvm": "22470",
+      "form": "DFP",
+      "reference_period": "2025-12-31",
+      "fiscal_year": 2025,
+      "local_path": "2025/MAGAZINE-LUIZA.md",
+      "source_url": "https://www.rad.cvm.gov.br/ENETWEB/frmConsultaExternaCVM.aspx?tipoconsulta=CVM&codigoCVM=22470"
+    },
+    {
+      "ticker": "SUZB3",
+      "cnpj": "16.404.287/0001-55",
+      "company_name": "Suzano S.A.",
+      "codigo_cvm": "13986",
+      "form": "DFP",
+      "reference_period": "2021-12-31",
+      "fiscal_year": 2021,
+      "local_path": "2021/SUZANO.md",
+      "source_url": "https://www.rad.cvm.gov.br/ENETWEB/frmConsultaExternaCVM.aspx?tipoconsulta=CVM&codigoCVM=13986"
+    },
+    {
+      "ticker": "SUZB3",
+      "cnpj": "16.404.287/0001-55",
+      "company_name": "Suzano S.A.",
+      "codigo_cvm": "13986",
+      "form": "DFP",
+      "reference_period": "2022-12-31",
+      "fiscal_year": 2022,
+      "local_path": "2022/SUZANO.md",
+      "source_url": "https://www.rad.cvm.gov.br/ENETWEB/frmConsultaExternaCVM.aspx?tipoconsulta=CVM&codigoCVM=13986"
+    },
+    {
+      "ticker": "SUZB3",
+      "cnpj": "16.404.287/0001-55",
+      "company_name": "Suzano S.A.",
+      "codigo_cvm": "13986",
+      "form": "DFP",
+      "reference_period": "2023-12-31",
+      "fiscal_year": 2023,
+      "local_path": "2023/SUZANO.md",
+      "source_url": "https://www.rad.cvm.gov.br/ENETWEB/frmConsultaExternaCVM.aspx?tipoconsulta=CVM&codigoCVM=13986"
+    },
+    {
+      "ticker": "SUZB3",
+      "cnpj": "16.404.287/0001-55",
+      "company_name": "Suzano S.A.",
+      "codigo_cvm": "13986",
+      "form": "DFP",
+      "reference_period": "2024-12-31",
+      "fiscal_year": 2024,
+      "local_path": "2024/SUZANO.md",
+      "source_url": "https://www.rad.cvm.gov.br/ENETWEB/frmConsultaExternaCVM.aspx?tipoconsulta=CVM&codigoCVM=13986"
+    },
+    {
+      "ticker": "SUZB3",
+      "cnpj": "16.404.287/0001-55",
+      "company_name": "Suzano S.A.",
+      "codigo_cvm": "13986",
+      "form": "DFP",
+      "reference_period": "2025-12-31",
+      "fiscal_year": 2025,
+      "local_path": "2025/SUZANO.md",
+      "source_url": "https://www.rad.cvm.gov.br/ENETWEB/frmConsultaExternaCVM.aspx?tipoconsulta=CVM&codigoCVM=13986"
+    },
+    {
+      "ticker": "VALE3",
+      "cnpj": "33.592.510/0001-54",
+      "company_name": "Vale S.A.",
+      "codigo_cvm": "4170",
+      "form": "DFP",
+      "reference_period": "2021-12-31",
+      "fiscal_year": 2021,
+      "local_path": "2021/VALE.md",
+      "source_url": "https://www.rad.cvm.gov.br/ENETWEB/frmConsultaExternaCVM.aspx?tipoconsulta=CVM&codigoCVM=4170"
+    },
+    {
+      "ticker": "VALE3",
+      "cnpj": "33.592.510/0001-54",
+      "company_name": "Vale S.A.",
+      "codigo_cvm": "4170",
+      "form": "DFP",
+      "reference_period": "2022-12-31",
+      "fiscal_year": 2022,
+      "local_path": "2022/VALE.md",
+      "source_url": "https://www.rad.cvm.gov.br/ENETWEB/frmConsultaExternaCVM.aspx?tipoconsulta=CVM&codigoCVM=4170"
+    },
+    {
+      "ticker": "VALE3",
+      "cnpj": "33.592.510/0001-54",
+      "company_name": "Vale S.A.",
+      "codigo_cvm": "4170",
+      "form": "DFP",
+      "reference_period": "2023-12-31",
+      "fiscal_year": 2023,
+      "local_path": "2023/VALE.md",
+      "source_url": "https://www.rad.cvm.gov.br/ENETWEB/frmConsultaExternaCVM.aspx?tipoconsulta=CVM&codigoCVM=4170"
+    },
+    {
+      "ticker": "VALE3",
+      "cnpj": "33.592.510/0001-54",
+      "company_name": "Vale S.A.",
+      "codigo_cvm": "4170",
+      "form": "DFP",
+      "reference_period": "2024-12-31",
+      "fiscal_year": 2024,
+      "local_path": "2024/VALE.md",
+      "source_url": "https://www.rad.cvm.gov.br/ENETWEB/frmConsultaExternaCVM.aspx?tipoconsulta=CVM&codigoCVM=4170"
+    },
+    {
+      "ticker": "VALE3",
+      "cnpj": "33.592.510/0001-54",
+      "company_name": "Vale S.A.",
+      "codigo_cvm": "4170",
+      "form": "DFP",
+      "reference_period": "2025-12-31",
+      "fiscal_year": 2025,
+      "local_path": "2025/VALE.md",
+      "source_url": "https://www.rad.cvm.gov.br/ENETWEB/frmConsultaExternaCVM.aspx?tipoconsulta=CVM&codigoCVM=4170"
+    },
+    {
+      "ticker": "WEGE3",
+      "cnpj": "84.429.695/0001-11",
+      "company_name": "WEG S.A.",
+      "codigo_cvm": "5410",
+      "form": "DFP",
+      "reference_period": "2021-12-31",
+      "fiscal_year": 2021,
+      "local_path": "2021/WEG.md",
+      "source_url": "https://www.rad.cvm.gov.br/ENETWEB/frmConsultaExternaCVM.aspx?tipoconsulta=CVM&codigoCVM=5410"
+    },
+    {
+      "ticker": "WEGE3",
+      "cnpj": "84.429.695/0001-11",
+      "company_name": "WEG S.A.",
+      "codigo_cvm": "5410",
+      "form": "DFP",
+      "reference_period": "2022-12-31",
+      "fiscal_year": 2022,
+      "local_path": "2022/WEG.md",
+      "source_url": "https://www.rad.cvm.gov.br/ENETWEB/frmConsultaExternaCVM.aspx?tipoconsulta=CVM&codigoCVM=5410"
+    },
+    {
+      "ticker": "WEGE3",
+      "cnpj": "84.429.695/0001-11",
+      "company_name": "WEG S.A.",
+      "codigo_cvm": "5410",
+      "form": "DFP",
+      "reference_period": "2023-12-31",
+      "fiscal_year": 2023,
+      "local_path": "2023/WEG.md",
+      "source_url": "https://www.rad.cvm.gov.br/ENETWEB/frmConsultaExternaCVM.aspx?tipoconsulta=CVM&codigoCVM=5410"
+    },
+    {
+      "ticker": "WEGE3",
+      "cnpj": "84.429.695/0001-11",
+      "company_name": "WEG S.A.",
+      "codigo_cvm": "5410",
+      "form": "DFP",
+      "reference_period": "2024-12-31",
+      "fiscal_year": 2024,
+      "local_path": "2024/WEG.md",
+      "source_url": "https://www.rad.cvm.gov.br/ENETWEB/frmConsultaExternaCVM.aspx?tipoconsulta=CVM&codigoCVM=5410"
+    },
+    {
+      "ticker": "WEGE3",
+      "cnpj": "84.429.695/0001-11",
+      "company_name": "WEG S.A.",
+      "codigo_cvm": "5410",
+      "form": "DFP",
+      "reference_period": "2025-12-31",
+      "fiscal_year": 2025,
+      "local_path": "2025/WEG.md",
+      "source_url": "https://www.rad.cvm.gov.br/ENETWEB/frmConsultaExternaCVM.aspx?tipoconsulta=CVM&codigoCVM=5410"
+    }
+  ]
+}

@@ -100,17 +100,17 @@ Goal: end-to-end chat UI streaming from FastAPI, no real retrieval yet.
 
 Goal: the CVM DFP corpus is parsed, chunked, embedded, and stored in Supabase.
 
-- [ ] `data/convert_to_markdown.py` — Docling `DocumentConverter` over each downloaded DFP PDF → normalized Markdown + converted manifest under `data/markdown/`
-- [ ] `ingest/` scripts (or CLI entrypoint) for one-off corpus loading into Supabase
-- [ ] Chunking strategy (size + overlap; store chunk index, page, section, ticker, `codigo_cvm`, form, fiscal year)
-- [ ] Write `source_documents` rows with filing metadata from `manifest.json`
-- [ ] Write `document_chunks` rows with text + metadata
-- [ ] OpenAI embedding generation → store `vector(1536)` per chunk
-- [ ] Generated `tsvector` (`portuguese` config) populated for full-text search
-- [ ] Idempotent re-run (skip already-ingested documents, keyed on `ticker` + `fiscal_year` + `form` — this fixed corpus has one filing per key; a future version handling *retificações* would need CVM's `numero_protocolo` instead, since that's the only reliable per-version key)
-- [ ] Unit tests: chunking logic, metadata extraction
-- [ ] Run ingestion on full sample corpus (25 filings × 5 companies)
-- [ ] Verify: chunks exist in Supabase; spot-check a known passage (e.g. Vale's receita por segmento table)
+- [x] `data/convert_to_markdown.py` — Docling `DocumentConverter` over each downloaded DFP PDF → normalized Markdown + converted manifest under `data/markdown/`
+- [x] `ingest/` scripts (or CLI entrypoint) for one-off corpus loading into Supabase
+- [x] Chunking strategy (size + overlap; store chunk index, page, section, ticker, `codigo_cvm`, form, fiscal year) — heading-aware chunker (`ingest/chunking.py`); `page` is intentionally left `null` (plain Markdown has no page numbers, only Docling's structured JSON export does — decided not worth re-running the already-completed conversion for); ticker/`codigo_cvm`/form/fiscal_year live on `source_documents` and are reachable via `document_chunks.document_id`, not duplicated per-chunk
+- [x] Write `source_documents` rows with filing metadata from `manifest.json`
+- [x] Write `document_chunks` rows with text + metadata
+- [x] OpenAI embedding generation → store `vector(1536)` per chunk
+- [x] Generated `tsvector` (`portuguese` config) populated for full-text search
+- [x] Idempotent re-run (skip already-ingested documents, keyed on `ticker` + `fiscal_year` + `form` — this fixed corpus has one filing per key; a future version handling *retificações* would need CVM's `numero_protocolo` instead, since that's the only reliable per-version key)
+- [x] Unit tests: chunking logic, metadata extraction
+- [x] Run ingestion on full sample corpus (25 filings × 5 companies)
+- [x] Verify: chunks exist in Supabase; spot-check a known passage (e.g. Vale's receita por segmento table)
 
 ---
 

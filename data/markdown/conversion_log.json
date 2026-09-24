@@ -1,0 +1,147 @@
+{
+  "run_started_at": "2026-09-24T00:31:52.605125+00:00",
+  "docling_version": "2.130.0",
+  "pipeline_options": {
+    "do_table_structure": true,
+    "do_ocr": false,
+    "table_structure_mode": "fast",
+    "accelerator_device": "cuda"
+  },
+  "total_filings": 25,
+  "skipped_already_converted": 9,
+  "attempted": 16,
+  "succeeded": 16,
+  "partial_success": 0,
+  "failed": 0,
+  "total_duration_seconds": 1402.4,
+  "filings": [
+    {
+      "ticker": "SUZB3",
+      "fiscal_year": 2024,
+      "local_path": "2024/SUZANO.pdf",
+      "status": "success",
+      "duration_seconds": 107.1,
+      "errors": []
+    },
+    {
+      "ticker": "SUZB3",
+      "fiscal_year": 2025,
+      "local_path": "2025/SUZANO.pdf",
+      "status": "success",
+      "duration_seconds": 89.8,
+      "errors": []
+    },
+    {
+      "ticker": "VALE3",
+      "fiscal_year": 2021,
+      "local_path": "2021/VALE.pdf",
+      "status": "success",
+      "duration_seconds": 91.9,
+      "errors": []
+    },
+    {
+      "ticker": "VALE3",
+      "fiscal_year": 2022,
+      "local_path": "2022/VALE.pdf",
+      "status": "success",
+      "duration_seconds": 97.9,
+      "errors": []
+    },
+    {
+      "ticker": "WEGE3",
+      "fiscal_year": 2021,
+      "local_path": "2021/WEG.pdf",
+      "status": "success",
+      "duration_seconds": 45.6,
+      "errors": []
+    },
+    {
+      "ticker": "WEGE3",
+      "fiscal_year": 2022,
+      "local_path": "2022/WEG.pdf",
+      "status": "success",
+      "duration_seconds": 46.0,
+      "errors": []
+    },
+    {
+      "ticker": "WEGE3",
+      "fiscal_year": 2023,
+      "local_path": "2023/WEG.pdf",
+      "status": "success",
+      "duration_seconds": 45.5,
+      "errors": []
+    },
+    {
+      "ticker": "WEGE3",
+      "fiscal_year": 2024,
+      "local_path": "2024/WEG.pdf",
+      "status": "success",
+      "duration_seconds": 48.8,
+      "errors": []
+    },
+    {
+      "ticker": "WEGE3",
+      "fiscal_year": 2025,
+      "local_path": "2025/WEG.pdf",
+      "status": "success",
+      "duration_seconds": 48.4,
+      "errors": []
+    },
+    {
+      "ticker": "MGLU3",
+      "fiscal_year": 2023,
+      "local_path": "2023/MAGAZINE-LUIZA.pdf",
+      "status": "success",
+      "duration_seconds": 71.4,
+      "errors": []
+    },
+    {
+      "ticker": "MGLU3",
+      "fiscal_year": 2022,
+      "local_path": "2022/MAGAZINE-LUIZA.pdf",
+      "status": "success",
+      "duration_seconds": 72.9,
+      "errors": []
+    },
+    {
+      "ticker": "ITUB4",
+      "fiscal_year": 2024,
+      "local_path": "2024/ITAU.pdf",
+      "status": "success",
+      "duration_seconds": 174.5,
+      "errors": []
+    },
+    {
+      "ticker": "VALE3",
+      "fiscal_year": 2023,
+      "local_path": "2023/VALE.pdf",
+      "status": "success",
+      "duration_seconds": 102.6,
+      "errors": []
+    },
+    {
+      "ticker": "VALE3",
+      "fiscal_year": 2024,
+      "local_path": "2024/VALE.pdf",
+      "status": "success",
+      "duration_seconds": 96.6,
+      "errors": []
+    },
+    {
+      "ticker": "VALE3",
+      "fiscal_year": 2025,
+      "local_path": "2025/VALE.pdf",
+      "status": "success",
+      "duration_seconds": 81.8,
+      "errors": []
+    },
+    {
+      "ticker": "ITUB4",
+      "fiscal_year": 2022,
+      "local_path": "2022/ITAU.pdf",
+      "status": "success",
+      "duration_seconds": 181.6,
+      "errors": []
+    }
+  ]
+}

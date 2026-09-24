@@ -15,6 +15,7 @@ dependencies = [
     "sqlalchemy==2.0.52",
     "structlog==26.1.0",
     "supabase==2.31.0",
+    "tiktoken==0.14.0",
     "uvicorn==0.53.0",
 ]
 
@@ -28,6 +29,7 @@ markers = ["integration: requires live Supabase/OpenAI credentials"]
 
 [dependency-groups]
 dev = [
+    "docling==2.127.0",
     "pytest==9.1.1",
     "ruff==0.16.7",
 ]

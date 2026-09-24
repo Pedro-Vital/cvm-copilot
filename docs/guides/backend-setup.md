@@ -90,5 +90,5 @@ from app.config import settings
 DFP PDFs are downloaded manually (CVM has no simple per-filing crawl API like SEC EDGAR's). See the repo root [README.md](../../README.md) for the manual download steps and the `manifest.json` schema, then from the repo root:
 
 ```bash
-uv run data/convert_to_markdown.py
+uv run --project backend data/convert_to_markdown.py
 ```
