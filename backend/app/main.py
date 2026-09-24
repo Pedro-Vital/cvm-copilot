@@ -7,6 +7,7 @@ from openai import AsyncOpenAI
 
 from app.api.auth import router as auth_router
 from app.api.chat import router as chat_router
+from app.api.sources import router as sources_router
 from app.assistant.agent import build_agent, build_model
 from app.config import settings
 from app.database.session import create_engine, create_session_factory
@@ -39,6 +40,7 @@ app.add_middleware(
 
 app.include_router(auth_router)
 app.include_router(chat_router)
+app.include_router(sources_router)
 
 
 @app.get("/health")

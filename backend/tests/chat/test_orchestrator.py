@@ -2,10 +2,16 @@ import json
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
+from sqlalchemy.exc import OperationalError
 
 from app.assistant.agent import build_agent
 from app.chat.messages import UIMessage, UIMessagePart
-from app.chat.orchestrator import GROUNDING_FAILURE_MESSAGE, run_chat_turn
+from app.chat.orchestrator import (
+    GROUNDING_FAILURE_MESSAGE,
+    RETRIEVAL_FAILURE_MESSAGE,
+    run_chat_turn,
+    thread_title,
+)
 from app.chat.streaming import STREAM_DONE
 from app.config import settings
 from tests.support.scripted_model import ScriptedModel, call_tool, final_answer
@@ -87,6 +93,7 @@ async def test_grounded_turn_streams_status_text_citations_and_persists(retrieve
     assert message_id == "assistant-row"
     assert (saved.citation_index, saved.chunk_id) == (1, passage.chunk_id)
     db.touch_thread.assert_awaited_once()
+    assert db.touch_thread.await_args.args[1:] == ("thread-1", "Qual a receita da Vale?")
 
 
 @pytest.mark.anyio
@@ -105,6 +112,17 @@ async def test_grounding_failure_streams_error_and_persists_nothing(retriever, p
     assert not any(part["type"] in {"text-delta", "data-citation"} for part in parts)
     db.insert_message.assert_not_awaited()
     db.insert_citations.assert_not_awaited()
+
+
+@pytest.mark.anyio
+async def test_retrieval_failure_streams_retrieval_error(retriever, db) -> None:
+    retriever.search.side_effect = OperationalError("SELECT 1", {}, Exception("connection refused"))
+    model = ScriptedModel(call_tool("search_filings", query="receita"))
+
+    parts = await run_turn(model, retriever, [user_message("Qual a receita da Vale?")])
+
+    assert parts[-1] == {"type": "error", "errorText": RETRIEVAL_FAILURE_MESSAGE}
+    db.insert_message.assert_not_awaited()
 
 
 @pytest.mark.anyio
@@ -131,4 +149,12 @@ async def test_prior_turns_reach_the_model_as_history(retriever, db) -> None:
 
     await run_turn(model, retriever, [*history, user_message("E em 2022?")])
 
+    assert db.touch_thread.await_args.args[2] is None
     assert seen_prompts == ["Qual a receita da Vale em 2023?", "R$ 208,1 bilhões [1].", "E em 2022?"]
+
+
+def test_thread_title_collapses_whitespace_and_cuts_long_questions_at_a_word() -> None:
+    assert thread_title("  Qual a receita\n da Vale? ") == "Qual a receita da Vale?"
+    title = thread_title("Quais contingências " * 10)
+    assert len(title) <= 81
+    assert title.endswith("contingências…")

@@ -15,6 +15,7 @@ from fastapi import HTTPException, status
 from pydantic_ai import Agent, UsageLimits
 from pydantic_ai.exceptions import UnexpectedModelBehavior, UsageLimitExceeded
 from pydantic_ai.messages import ToolCallPart
+from sqlalchemy.exc import SQLAlchemyError
 from supabase import AsyncClient
 
 from app.assistant.agent import DocumentAgent
@@ -47,9 +48,18 @@ USAGE_LIMIT_MESSAGE = (
     "A pergunta exigiu buscas demais para uma única resposta. "
     "Tente restringir a empresa, o período ou o tema."
 )
+RETRIEVAL_FAILURE_MESSAGE = "A busca nas DFPs falhou. Tente novamente em instantes."
 GENERIC_FAILURE_MESSAGE = "Não foi possível gerar a resposta agora. Tente novamente em instantes."
+THREAD_TITLE_MAX_CHARS = 80
 
 logger = structlog.get_logger(__name__)
+
+
+def thread_title(question: str) -> str:
+    title = " ".join(question.split())
+    if len(title) <= THREAD_TITLE_MAX_CHARS:
+        return title
+    return title[:THREAD_TITLE_MAX_CHARS].rsplit(" ", 1)[0] + "…"
 
 
 def tool_status(part: ToolCallPart) -> str:
@@ -120,6 +130,11 @@ async def run_chat_turn(
         yield error_event(USAGE_LIMIT_MESSAGE)
         yield STREAM_DONE
         return
+    except SQLAlchemyError:
+        log.exception("retrieval_failed")
+        yield error_event(RETRIEVAL_FAILURE_MESSAGE)
+        yield STREAM_DONE
+        return
     except Exception:
         log.exception("agent_run_failed")
         yield error_event(GENERIC_FAILURE_MESSAGE)
@@ -147,7 +162,9 @@ async def run_chat_turn(
         user_client, thread_id, "assistant", answer.answer, assistant_message.model_dump(by_alias=True, exclude_none=True)
     )
     await insert_citations(user_client, assistant_row["id"], answer.citations)
-    await touch_thread(user_client, thread_id)
+    # The first question names the thread; later turns only bump its recency.
+    title = thread_title(user_text) if len(messages) == 1 else None
+    await touch_thread(user_client, thread_id, title)
 
     async for event in stream_text(assistant_message_id, answer.answer):
         yield event

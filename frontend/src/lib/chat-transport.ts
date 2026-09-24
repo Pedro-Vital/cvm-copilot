@@ -1,13 +1,14 @@
-import { DefaultChatTransport, type UIMessage } from 'ai'
+import { DefaultChatTransport } from 'ai'
 
+import type { ChatMessage } from '@/lib/chat-types'
 import { env } from '@/lib/env'
 import { supabase } from '@/lib/supabase'
 
 export function createChatTransport(threadId: string) {
-  return new DefaultChatTransport<UIMessage>({
+  return new DefaultChatTransport<ChatMessage>({
     api: `${env.apiBaseUrl}/chat/stream`,
     body: { threadId },
-    headers: async () => {
+    headers: async (): Promise<Record<string, string>> => {
       const {
         data: { session },
       } = await supabase.auth.getSession()

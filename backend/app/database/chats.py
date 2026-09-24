@@ -40,6 +40,11 @@ async def get_thread_or_403_404(service_client: AsyncClient, thread_id: str, use
     return thread
 
 
+async def delete_thread(client: AsyncClient, thread_id: str) -> None:
+    # Messages and their citations go with it via ON DELETE CASCADE.
+    await client.table(THREADS_TABLE).delete().eq("id", thread_id).execute()
+
+
 async def list_messages(client: AsyncClient, thread_id: str) -> list[dict]:
     response = (
         await client.table(MESSAGES_TABLE).select("*").eq("thread_id", thread_id).order("created_at").execute()
@@ -60,9 +65,11 @@ async def insert_message(client: AsyncClient, thread_id: str, role: str, content
     return response.data[0]
 
 
-async def touch_thread(client: AsyncClient, thread_id: str) -> None:
-    now = datetime.now(UTC).isoformat()
-    await client.table(THREADS_TABLE).update({"updated_at": now}).eq("id", thread_id).execute()
+async def touch_thread(client: AsyncClient, thread_id: str, title: str | None = None) -> None:
+    changes = {"updated_at": datetime.now(UTC).isoformat()}
+    if title is not None:
+        changes["title"] = title
+    await client.table(THREADS_TABLE).update(changes).eq("id", thread_id).execute()
 
 
 async def insert_citations(client: AsyncClient, message_id: str, citations: list[Citation]) -> None:

@@ -4,7 +4,12 @@ from uuid import UUID, uuid4
 
 import pytest
 
+from app.logging_setup import configure_logging
 from app.retrieval.types import RetrievedPassage
+
+# Same renderer as the app: the default rich tracebacks take minutes to
+# render through PydanticAI's agent graph when a test hits log.exception.
+configure_logging()
 
 
 @pytest.fixture

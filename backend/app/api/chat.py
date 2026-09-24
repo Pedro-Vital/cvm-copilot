@@ -12,6 +12,7 @@ from app.chat.orchestrator import run_chat_turn
 from app.chat.streaming import SSE_HEADERS
 from app.database.chats import (
     create_thread,
+    delete_thread,
     get_thread_or_403_404,
     list_messages,
     list_threads,
@@ -80,6 +81,20 @@ async def get_thread_route(
     rows = await list_messages(user_client, thread_id)
 
     return ThreadDetailOut(**thread, messages=[row["message_json"] for row in rows])
+
+
+@router.delete("/threads/{thread_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_thread_route(
+    thread_id: str,
+    current_user: Annotated[CurrentUser, Depends(get_current_user)],
+) -> None:
+    # RLS alone would make a foreign thread a silent no-op; the explicit check
+    # gives the client a real 403/404.
+    service_client = await get_service_client()
+    await get_thread_or_403_404(service_client, thread_id, current_user.id)
+
+    user_client = await get_user_client(current_user.access_token)
+    await delete_thread(user_client, thread_id)
 
 
 @router.post("/stream")
