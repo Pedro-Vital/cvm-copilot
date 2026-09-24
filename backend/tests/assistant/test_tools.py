@@ -5,7 +5,12 @@ from uuid import uuid4
 import pytest
 
 from app.assistant.deps import DocumentAgentDeps, TurnRegistry
-from app.assistant.tools import read_chunks, read_surrounding_chunks, search_filings
+from app.assistant.tools import (
+    MAX_SEARCHES_PER_TURN,
+    read_chunks,
+    read_surrounding_chunks,
+    search_filings,
+)
 from app.retrieval.types import SearchFilters
 
 
@@ -112,3 +117,28 @@ async def test_read_surrounding_chunks_rejects_bad_input_without_querying(chunk_
 
     assert result.startswith("Error:")
     ctx.deps.retriever.read_surrounding.assert_not_awaited()
+
+
+@pytest.mark.anyio
+async def test_search_filings_stops_after_the_per_turn_budget(make_passage) -> None:
+    ctx = make_ctx()
+    ctx.deps.retriever.search.return_value = [make_passage()]
+
+    for _ in range(MAX_SEARCHES_PER_TURN):
+        assert not (await search_filings(ctx, "receita")).startswith("Error:")
+    result = await search_filings(ctx, "receita")
+
+    assert result.startswith("Error: search limit reached")
+    assert ctx.deps.retriever.search.await_count == MAX_SEARCHES_PER_TURN
+
+
+@pytest.mark.anyio
+async def test_read_chunks_returns_full_text_beyond_search_excerpt_cap(make_passage) -> None:
+    ctx = make_ctx()
+    long_table_tail = "| Receita líquida total | 208.066 |"
+    passage = make_passage(content="x " * 1000 + long_table_tail)
+    ctx.deps.retriever.read_chunks.return_value = [passage]
+
+    result = await read_chunks(ctx, [str(passage.chunk_id)])
+
+    assert long_table_tail in result

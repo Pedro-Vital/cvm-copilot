@@ -3,7 +3,7 @@
 from datetime import datetime
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, Request, status
 from fastapi.responses import StreamingResponse
 
 from app.auth.dependencies import CurrentUser, get_current_user
@@ -85,11 +85,19 @@ async def get_thread_route(
 @router.post("/stream")
 async def stream_route(
     body: ChatStreamRequest,
+    request: Request,
     current_user: Annotated[CurrentUser, Depends(get_current_user)],
 ) -> StreamingResponse:
     service_client = await get_service_client()
     await get_thread_or_403_404(service_client, body.thread_id, current_user.id)
 
     user_client = await get_user_client(current_user.access_token)
-    generator = run_chat_turn(body.thread_id, body.messages, user_client)
+    generator = run_chat_turn(
+        body.thread_id,
+        body.messages,
+        user_client,
+        agent=request.app.state.agent,
+        retriever=request.app.state.retriever,
+        user_id=current_user.id,
+    )
     return StreamingResponse(generator, media_type="text/event-stream", headers=SSE_HEADERS)

@@ -47,13 +47,10 @@ class DocumentRetriever:
             return []
 
         fused_ids = [chunk_id for chunk_id, _ in fused]
-        async with self._session_factory() as session:
-            rows_by_id = await get_chunks_by_ids(session, fused_ids)
-            neighbors_by_anchor = (
-                await get_neighbor_chunks(session, fused_ids, settings.retrieval_neighbor_radius)
-                if include_neighbors
-                else {}
-            )
+        rows_by_id, neighbors_by_anchor = await asyncio.gather(
+            self._chunks(fused_ids),
+            self._neighbors(fused_ids) if include_neighbors else _no_neighbors(),
+        )
 
         # A chunk can neighbor several hits; attach it only to the first
         # (highest-ranked) one so the agent doesn't read it twice.
@@ -78,16 +75,28 @@ class DocumentRetriever:
             rows = await get_surrounding_chunks(session, chunk_id, radius)
         return [_passage(row) for row in rows]
 
-    # Each search path gets its own session: an AsyncSession can't run two
-    # statements concurrently.
+    # Each concurrent query gets its own session: an AsyncSession can't run
+    # two statements at once.
     async def _semantic(self, query: str, limit: int, filters: SearchFilters | None) -> list[UUID]:
         query_vec = await embed_query(self._openai_client, query)
         async with self._session_factory() as session:
             return await semantic_search(session, query_vec, limit=limit, filters=filters)
 
+    async def _chunks(self, chunk_ids: list[UUID]) -> dict[UUID, RowMapping]:
+        async with self._session_factory() as session:
+            return await get_chunks_by_ids(session, chunk_ids)
+
+    async def _neighbors(self, anchor_ids: list[UUID]) -> dict[UUID, list[RowMapping]]:
+        async with self._session_factory() as session:
+            return await get_neighbor_chunks(session, anchor_ids, settings.retrieval_neighbor_radius)
+
     async def _full_text(self, query: str, limit: int, filters: SearchFilters | None) -> list[UUID]:
         async with self._session_factory() as session:
             return await full_text_search(session, query, limit=limit, filters=filters)
+
+
+async def _no_neighbors() -> dict[UUID, list[RowMapping]]:
+    return {}
 
 
 def _passage(

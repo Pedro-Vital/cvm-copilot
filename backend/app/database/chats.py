@@ -6,8 +6,11 @@ from uuid import uuid4
 from fastapi import HTTPException, status
 from supabase import AsyncClient
 
+from app.assistant.outputs import Citation
+
 THREADS_TABLE = "chat_threads"
 MESSAGES_TABLE = "chat_messages"
+CITATIONS_TABLE = "message_citations"
 
 
 async def list_threads(client: AsyncClient) -> list[dict]:
@@ -60,3 +63,20 @@ async def insert_message(client: AsyncClient, thread_id: str, role: str, content
 async def touch_thread(client: AsyncClient, thread_id: str) -> None:
     now = datetime.now(UTC).isoformat()
     await client.table(THREADS_TABLE).update({"updated_at": now}).eq("id", thread_id).execute()
+
+
+async def insert_citations(client: AsyncClient, message_id: str, citations: list[Citation]) -> None:
+    if not citations:
+        return
+    # Same client-side-only id default as chat_threads — see create_thread.
+    rows = [
+        {
+            "id": str(uuid4()),
+            "message_id": message_id,
+            "chunk_id": str(citation.chunk_id),
+            "citation_index": citation.citation_index,
+            "excerpt": citation.excerpt,
+        }
+        for citation in citations
+    ]
+    await client.table(CITATIONS_TABLE).insert(rows).execute()
