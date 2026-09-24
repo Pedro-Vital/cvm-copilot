@@ -157,7 +157,7 @@ Goal: analysts can verify every claim in one click — this is what makes the pr
 - [x] Empty states (no threads, no corpus match) — sidebar "Nenhuma conversa ainda", example questions from the client brief on the empty page and in an empty thread, and a "nada foi citado" notice on insufficient-evidence answers
 - [x] Error states (auth expired, retrieval failure, grounding failure, network/CORS) — `lib/chat-errors.ts` maps HTTP 401/403/404, fetch failures, and the backend's stream `error` text (grounding, retrieval via `SQLAlchemyError`, usage limit); retry via `regenerate()`, "Entrar novamente" on 401
 - [x] Loading/streaming status during assistant run — transient `data-status` parts drive a status line until the validated answer starts revealing
-- [ ] Verify: click a citation → see the exact passage from the DFP
+- [x] Verify: click a citation → see the exact passage from the DFP
 
 ---
 
