@@ -55,7 +55,10 @@ export function ChatLayout() {
     <div className="flex h-svh">
       <aside className="flex w-64 shrink-0 flex-col border-r">
         <div className="flex items-center justify-between p-4">
-          <h1 className="text-sm font-medium">CVM Copilot</h1>
+          <div className="flex items-center gap-2">
+            <img src="/ipe-amarelo.png" alt="" className="size-6" />
+            <h1 className="text-sm font-medium">CVM Copilot</h1>
+          </div>
           <Button variant="outline" size="sm" onClick={() => supabase.auth.signOut()}>
             Sair
           </Button>
