@@ -31,7 +31,7 @@ Full brief: [docs/client-brief.md](docs/client-brief.md)
 cvm-copilot/
 ├── CLAUDE.md           # agent instructions (read first)
 ├── README.md           # this file
-├── data/               # local corpus + manifest (payloads gitignored)
+├── data/               # local corpus + manifest
 ├── docs/
 │   └── client-brief.md # the client one-pager
 ├── backend/            # FastAPI service
