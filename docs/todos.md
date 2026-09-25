@@ -165,13 +165,13 @@ Goal: analysts can verify every claim in one click — this is what makes the pr
 
 Goal: 5 senior analysts can use it for a week and report ≥3 hours saved per analyst per week.
 
-- [ ] README "Running locally" section — copy-paste commands for backend + frontend + env vars
-- [ ] Seed or document how to ingest/update the corpus
-- [ ] Smoke-test all 10 example questions from the client brief
-- [ ] Confirm chat history persists across sessions
-- [ ] Confirm ~40-analyst scale assumptions (no hardcoded single-user shortcuts)
-- [ ] Basic structured logging on backend (`structlog`) for debugging failed turns
-- [ ] Review latency: streaming starts within a few seconds for typical queries
+- [x] README "Running locally" section — copy-paste commands for backend + frontend + env vars
+- [x] Seed or document how to ingest/update the corpus — README "Loading and updating the corpus"; the prepared corpus (PDFs + finished Docling conversion) is shared on Google Drive so a new setup only runs `ingest.load_corpus`
+- [x] Smoke-test all 10 example questions from the client brief — first run: 7/10 answered + the out-of-scope question correctly returned insufficient evidence; Q2, Q6, Q9 failed closed on grounding (inexact table-row quotes) and all three passed on re-run. Intermittent, fail-closed as designed, but ~1 in 3 on the broadest questions is a pilot risk
+- [x] Confirm chat history persists across sessions
+- [x] Confirm ~40-analyst scale assumptions (no hardcoded single-user shortcuts) — see architecture.md § "Capacity (pilot scale)"
+- [x] Basic structured logging on backend (`structlog`) for debugging failed turns — every turn event carries `turn_id`; `grounding_rejected` records why citations failed; `LOG_FORMAT=json` for hosted logs (README § Logs)
+- [x] Review latency: streaming starts within a few seconds for typical queries — status lines stream immediately, but answer text only appears after validation: 15–139 s in the smoke run (median ~45 s). `turn_done.first_text_ms` now tracks it
 
 ---
 

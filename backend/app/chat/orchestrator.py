@@ -7,6 +7,7 @@ reason, failures after that point become an AI SDK `error` event, not an HTTP
 error.
 """
 
+import time
 from collections.abc import AsyncIterator
 from uuid import uuid4
 
@@ -62,6 +63,10 @@ def thread_title(question: str) -> str:
     return title[:THREAD_TITLE_MAX_CHARS].rsplit(" ", 1)[0] + "…"
 
 
+def elapsed_ms(started: float) -> int:
+    return round((time.perf_counter() - started) * 1000)
+
+
 def tool_status(part: ToolCallPart) -> str:
     args = part.args_as_dict()
     if part.tool_name == "search_filings":
@@ -100,11 +105,17 @@ async def run_chat_turn(
         raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, "Message has no text content")
 
     assistant_message_id = str(uuid4())
+    started = time.perf_counter()
+    # Bound as contextvars so the agent tools' and grounding validator's log
+    # lines carry the same turn_id. This generator runs inside the request's own
+    # task, so the binding can't leak into other requests.
+    structlog.contextvars.bind_contextvars(turn_id=assistant_message_id, thread_id=thread_id, user_id=user_id)
+    logger.info("turn_started", question_chars=len(user_text), history_messages=len(messages) - 1)
+
     yield start_event(assistant_message_id)
     yield status_event("Analisando a pergunta…")
 
     deps = DocumentAgentDeps(retriever=retriever, registry=TurnRegistry(), user_id=user_id, thread_id=thread_id)
-    log = logger.bind(thread_id=thread_id, user_id=user_id)
     try:
         async with agent.iter(
             user_text,
@@ -121,28 +132,28 @@ async def run_chat_turn(
     # The response is already a 200 stream, so every failure must become an
     # error event — letting it propagate would just cut the stream off.
     except UnexpectedModelBehavior as exc:
-        log.warning("grounding_failed", error=str(exc))
+        logger.warning("grounding_failed", error=str(exc), duration_ms=elapsed_ms(started))
         yield error_event(GROUNDING_FAILURE_MESSAGE)
         yield STREAM_DONE
         return
     except UsageLimitExceeded as exc:
-        log.warning("agent_usage_limit_exceeded", error=str(exc))
+        logger.warning("agent_usage_limit_exceeded", error=str(exc), duration_ms=elapsed_ms(started))
         yield error_event(USAGE_LIMIT_MESSAGE)
         yield STREAM_DONE
         return
     except SQLAlchemyError:
-        log.exception("retrieval_failed")
+        logger.exception("retrieval_failed", duration_ms=elapsed_ms(started))
         yield error_event(RETRIEVAL_FAILURE_MESSAGE)
         yield STREAM_DONE
         return
     except Exception:
-        log.exception("agent_run_failed")
+        logger.exception("agent_run_failed", duration_ms=elapsed_ms(started))
         yield error_event(GENERIC_FAILURE_MESSAGE)
         yield STREAM_DONE
         return
 
     usage = run.result.usage
-    log.info(
+    logger.info(
         "agent_run_done",
         requests=usage.requests,
         tool_calls=usage.tool_calls,
@@ -150,6 +161,7 @@ async def run_chat_turn(
         output_tokens=usage.output_tokens,
         citations=len(answer.citations),
         insufficient_evidence=answer.insufficient_evidence,
+        duration_ms=elapsed_ms(started),
     )
 
     parts = citation_parts(answer, deps.registry)
@@ -166,9 +178,13 @@ async def run_chat_turn(
     title = thread_title(user_text) if len(messages) == 1 else None
     await touch_thread(user_client, thread_id, title)
 
+    # Text only starts after validation + persistence, so this is how long the
+    # analyst watched status lines before seeing any of the answer.
+    first_text_ms = elapsed_ms(started)
     async for event in stream_text(assistant_message_id, answer.answer):
         yield event
     for part in parts:
         yield data_part_event(part.model_dump(by_alias=True, exclude_none=True))
     for event in finish_events():
         yield event
+    logger.info("turn_done", first_text_ms=first_text_ms, duration_ms=elapsed_ms(started))

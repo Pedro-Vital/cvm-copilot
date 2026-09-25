@@ -365,6 +365,7 @@ Backend settings:
 - `OPENAI_API_KEY`
 - `ALLOWED_ORIGINS`
 - embedding model name and dimensions
+- `LOG_FORMAT` (`console` / `json`) and `LOG_LEVEL`
 
 Do not read environment variables directly from components, route handlers, or services. Frontend code should use `src/lib/env.ts`. Backend code should use `app/config.py`.
 
@@ -376,6 +377,17 @@ Railway should run two services:
 - Backend: FastAPI service running Uvicorn.
 
 Supabase remains hosted and stores the durable retrieval data. The Railway backend can stay stateless because document chunks, embeddings, full-text search vectors, chats, and citations all live in Supabase Postgres. Raw downloaded filings remain gitignored local ingestion inputs unless a later workflow stores them in object storage.
+
+## Capacity (pilot scale)
+
+Sized for Ipê Capital's ~40 analysts (5 in the pilot), which means a handful of simultaneous chat turns at peak. Checked in Phase 8:
+
+- **No single-user shortcuts.** Identity always comes from the verified Supabase JWT. Chats, messages, and citations go through the user-scoped client, so RLS applies. The agent and retriever are built once in the FastAPI lifespan and hold no per-user state. Per-turn state (`DocumentAgentDeps`, `TurnRegistry`) is created fresh for each turn. The only module-level global is the stateless service-role Supabase client.
+- **Frontend.** Nothing is cached per user outside React state. Signing out unmounts the chat layout, so a shared machine never shows the previous analyst's threads.
+- **Postgres connections.** Retrieval uses SQLAlchemy's default pool: 5 connections plus 10 overflow per process. Each `search_filings` call holds 2 connections at once (semantic and full-text run concurrently), so about 7 searches can run in parallel before new ones queue. Queued searches wait up to 30 s; they don't fail. Supabase caps direct connections by compute tier (60 on the smallest), so check that cap before running several Uvicorn workers, because each worker gets its own pool.
+- **Auth round trip.** Every request verifies the token against Supabase Auth's `/user` endpoint, which costs one extra network round trip. That's fine at this scale. Local JWT verification is the upgrade path if it ever shows up in latency.
+- **OpenAI rate limits** are the likeliest ceiling. One turn is several sequential model rounds with retrieved passages in context, so tokens per minute scale with concurrent turns. Confirm the organization's rate-limit tier before the pilot.
+- **Uvicorn.** A single async process is enough: turns are I/O-bound (OpenAI, Postgres) and nothing blocks the event loop.
 
 ## Implementation Sequence
 

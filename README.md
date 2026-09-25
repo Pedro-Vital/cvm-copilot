@@ -54,16 +54,140 @@ You also need accounts/keys for external services once the app is wired up. Star
 
 ## Running locally
 
-To be added during the build. Setup guides:
+You need a Supabase project ([guide](docs/guides/supabase-setup.md)) and an OpenAI API key.
+The backend and frontend each run in their own terminal.
 
-- [Supabase](docs/guides/supabase-setup.md) — account, hosted project (dashboard or CLI)
-- [Backend](docs/guides/backend-setup.md)
-- [Frontend](docs/guides/frontend-setup.md)
+**1. Backend env** — copy the template and fill in Supabase (Dashboard → Project Settings →
+API / Database) and OpenAI values:
+
+```bash
+cd backend
+uv sync
+cp .env.example .env
+```
+
+| Variable | Notes |
+| -------- | ----- |
+| `SUPABASE_URL`, `SUPABASE_ANON_KEY` | Project Settings → API |
+| `SUPABASE_SERVICE_ROLE_KEY` | Project Settings → API. Backend only — never put it in the frontend |
+| `DATABASE_URL` | The **direct** connection (`db.<ref>.supabase.co:5432`), not the pooler. URL-encode the password |
+| `OPENAI_API_KEY` | Chat model + embeddings |
+| `ALLOWED_ORIGINS` | Comma-separated CORS origins; `http://localhost:5173` for local dev |
+| `LOG_FORMAT`, `LOG_LEVEL` | Optional. `console` (default) or `json`; `INFO` by default |
+
+**2. Database schema** (first run, and after pulling new migrations):
+
+```bash
+cd backend
+uv run alembic upgrade head
+```
+
+**3. Corpus** — download the prepared corpus (the DFP PDFs and their finished Docling
+conversion) from the [shared Google Drive folder][corpus-drive] and put its two folders at
+`data/downloads/` and `data/markdown/`. That skips the manual CVM download and the slow
+conversion. Then load it into Supabase once:
+
+```bash
+cd backend
+uv run python -m ingest.load_corpus   # chunks + embeds (OpenAI) the 25 filings
+```
+
+Without it every answer comes back as "evidência insuficiente". See
+[Loading and updating the corpus](#loading-and-updating-the-corpus) for how the corpus is built.
+
+**4. Run the backend** (http://localhost:8000):
+
+```bash
+cd backend
+uv run uvicorn app.main:app --reload
+curl http://localhost:8000/health   # {"status":"ok"}
+```
+
+**5. Frontend env + run** (http://localhost:5173):
+
+```bash
+cd frontend
+pnpm install
+cp .env.example .env   # VITE_API_BASE_URL=http://localhost:8000, VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY
+pnpm dev
+```
+
+Open http://localhost:5173, sign up with an email, and ask one of the
+[example questions](docs/client-brief.md#example-analyst-questions).
+
+**Checks:**
+
+```bash
+cd backend && uv run pytest -m "not integration" && uv run ruff check .
+cd frontend && pnpm tsc --noEmit && pnpm lint
+cd backend && uv run python -m scripts.smoke_assistant 1 10   # live agent against the real corpus (costs OpenAI tokens)
+```
+
+More detail: [Supabase](docs/guides/supabase-setup.md) · [Backend](docs/guides/backend-setup.md) ·
+[Frontend](docs/guides/frontend-setup.md)
+
+### Logs
+
+The backend logs one structured event per step of a chat turn. Every event from the same turn
+shares a `turn_id` (the assistant message id), so you can pull up one failed answer end to end:
+
+| Event | When |
+| ----- | ---- |
+| `turn_started` | Question received (`thread_id`, `user_id`, `history_messages`) |
+| `agent_tool` | Each `search_filings` / `read_*` call (`results`, `duration_ms`) |
+| `grounding_rejected` | A draft answer's citations failed validation and went back to the model (`attempt`, `errors`) |
+| `agent_run_done` | Validated answer (`requests`, `tool_calls`, tokens, `citations`, `duration_ms`) |
+| `turn_done` | Stream finished (`first_text_ms` = wait before answer text appears, `duration_ms`) |
+| `grounding_failed` / `agent_usage_limit_exceeded` / `retrieval_failed` / `agent_run_failed` | The turn failed closed; the analyst saw an error |
+
+Set `LOG_FORMAT=json` in hosted environments to get one JSON object per line.
+
+## Loading and updating the corpus
+
+The corpus pipeline has three one-off steps, all run from the repo root. Each step is
+idempotent, so re-running after adding filings only processes the new ones.
+
+> **Just running the project?** Skip steps 1–2: the [shared Google Drive folder][corpus-drive]
+> has `downloads/` (the 25 DFP PDFs) and `markdown/` (the complete Docling
+> conversion). Copy both into `data/` and go straight to step 3.
+
+[corpus-drive]: https://drive.google.com/drive/folders/18Ul21h84S0D7eADyeVtZS5mc79YI8lwc?usp=sharing
+
+1. **Download** — the DFP PDFs are downloaded by hand into `data/downloads/<year>/` and
+   recorded in `data/downloads/manifest.json` (see [Sample CVM data](#sample-cvm-data)).
+2. **Convert** — Docling turns each PDF into Markdown + a DoclingDocument JSON under
+   `data/markdown/` (slow: minutes per filing on CPU; a GPU helps):
+
+   ```bash
+   uv run --project backend data/convert_to_markdown.py
+   ```
+
+3. **Load** — chunk, embed (OpenAI), and write `source_documents` + `document_chunks` to
+   whatever database `backend/.env` points at:
+
+   ```bash
+   cd backend
+   uv run python -m ingest.load_corpus
+   ```
+
+   Filings are keyed on `ticker + fiscal_year + form`. Already-loaded filings are skipped;
+   a filing left half-loaded by a crashed run (a document row with no chunks) is deleted and
+   redone.
+
+**Adding a filing** (e.g. a new fiscal year): download the PDF, add its manifest entry, then
+re-run steps 2 and 3.
+
+**Replacing a filing** (e.g. a corrected conversion): the loader won't overwrite an existing
+filing. Delete its `source_documents` row in Supabase first, then re-run step 3. The delete
+cascades to its chunks *and* to the `message_citations` rows that point at them: past answers
+still show their citation chips and quoted excerpts (those live in the stored message), but
+opening the source panel for them returns "not found".
 
 ## Sample CVM data
 
 Unlike SEC EDGAR, CVM doesn't expose a simple per-filing API to script against, so the sample
-corpus is built by manual download instead of a crawler:
+corpus is built by manual download instead of a crawler (to skip all of this, use the
+[prepared corpus][corpus-drive]):
 
 1. Pick a small set of B3-listed companies and fiscal years — this project's sample set is
    ITUB4 (Itaú Unibanco), MGLU3 (Magazine Luiza), SUZB3 (Suzano), VALE3 (Vale), and WEGE3 (WEG)

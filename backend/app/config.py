@@ -5,7 +5,7 @@ Import `settings` wherever config is needed. Never call `os.getenv` or
 mirror the value here instead.
 """
 
-from typing import Annotated
+from typing import Annotated, Literal
 
 from pydantic import field_validator
 from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
@@ -59,6 +59,12 @@ class Settings(BaseSettings):
     retrieval_top_k: int = 10
     retrieval_rrf_k: int = 60
     retrieval_neighbor_radius: int = 1
+
+    # --- Logging ---
+    # "console" is human-readable for local dev; "json" emits one object per
+    # line so a hosted log viewer (Railway) can filter by turn_id, thread_id…
+    log_format: Literal["console", "json"] = "console"
+    log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR"] = "INFO"
 
     # --- Server ---
     allowed_origins: Annotated[list[str], NoDecode] = ["http://localhost:5173"]

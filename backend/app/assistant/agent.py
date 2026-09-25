@@ -3,6 +3,7 @@
 from pathlib import Path
 
 import pydantic_ai
+import structlog
 from openai import AsyncOpenAI
 from pydantic_ai import Agent, ModelRetry, RunContext
 from pydantic_ai.models import Model
@@ -19,6 +20,8 @@ from app.grounding.validator import validate_grounding
 pydantic_ai.BANNER_ENABLED = False
 
 INSTRUCTIONS = (Path(__file__).parent / "instructions.md").read_text(encoding="utf-8")
+
+logger = structlog.get_logger(__name__)
 
 DocumentAgent = Agent[DocumentAgentDeps, GroundedAnswer]
 
@@ -48,6 +51,9 @@ def build_agent(model: Model) -> DocumentAgent:
         # orchestrator fails the turn closed.
         errors = validate_grounding(answer, ctx.deps.registry)
         if errors:
+            # The final UnexpectedModelBehavior only says retries ran out; the
+            # specific rejections are only visible here.
+            logger.warning("grounding_rejected", attempt=ctx.retry, errors=errors)
             raise ModelRetry("Grounding validation failed:\n" + "\n".join(f"- {error}" for error in errors))
         return answer
 
