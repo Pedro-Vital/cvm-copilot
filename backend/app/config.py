@@ -61,9 +61,6 @@ class Settings(BaseSettings):
     retrieval_neighbor_radius: int = 1
 
     # --- Logging ---
-    # "console" is human-readable for local dev; "json" emits one object per
-    # line so a hosted log viewer (Railway) can filter by turn_id, thread_id…
-    log_format: Literal["console", "json"] = "console"
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR"] = "INFO"
 
     # --- Server ---

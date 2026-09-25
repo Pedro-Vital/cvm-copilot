@@ -75,7 +75,6 @@ A wrong but confident answer is worse than no answer. Hallucinations kill the pr
 - Source: CVM (dados públicos, `dados.cvm.gov.br` and CVM's filing-search system)
 - Users: ~40 Ipê Capital analysts, plus a few sócios
 - Login: Ipê Capital email addresses (no SSO required)
-- Hosting: must run on a small/medium cloud footprint; Ipê Capital has no infra team
 
 ## Out of scope (explicitly)
 

@@ -63,7 +63,7 @@ backend/
 
 ## Database migrations
 
-- Alembic is the source of truth for schema changes. Do not change production tables manually in the Supabase dashboard.
+- Alembic is the source of truth for schema changes. Do not change tables manually in the Supabase dashboard.
 - SQLAlchemy models describe normal tables and columns. Alembic autogenerate creates candidate migrations, but every generated migration must be reviewed before applying.
 - Supabase/Postgres-specific features belong in explicit migration operations: `create extension vector`, generated `tsvector` columns, HNSW/GIN indexes, RLS enablement, and RLS policies.
 - Alembic must use the direct/session database connection, not the Supabase transaction pooler URL.

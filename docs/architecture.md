@@ -14,10 +14,8 @@ The best opening diagram is a service-level view that shows the two core paths: 
 flowchart LR
     user[Analyst] --> browser[Browser<br/>React chat app]
 
-    subgraph railway[Railway]
-        frontend[Frontend service<br/>Vite build]
-        backend[Backend service<br/>FastAPI + PydanticAI]
-    end
+    frontend[Frontend<br/>Vite dev server]
+    backend[Backend<br/>FastAPI + PydanticAI]
 
     subgraph supabase[Supabase]
         auth[Auth<br/>email session]
@@ -49,7 +47,6 @@ flowchart LR
 - Use Supabase for identity and durable product state: users, chat threads, source documents, chunks, embeddings, and citation metadata.
 - Use Supabase `pgvector` for semantic retrieval and Postgres full-text search for keyword retrieval.
 - Make the LLM path typed and testable by using PydanticAI agents with explicit dependencies, outputs, and tool boundaries.
-- Preserve a simple deployment model on Railway: one frontend service, one stateless backend service, and hosted Supabase.
 
 ## Stack
 
@@ -365,18 +362,9 @@ Backend settings:
 - `OPENAI_API_KEY`
 - `ALLOWED_ORIGINS`
 - embedding model name and dimensions
-- `LOG_FORMAT` (`console` / `json`) and `LOG_LEVEL`
+- `LOG_LEVEL`
 
 Do not read environment variables directly from components, route handlers, or services. Frontend code should use `src/lib/env.ts`. Backend code should use `app/config.py`.
-
-## Deployment Shape
-
-Railway should run two services:
-
-- Frontend: static Vite build served as a web app.
-- Backend: FastAPI service running Uvicorn.
-
-Supabase remains hosted and stores the durable retrieval data. The Railway backend can stay stateless because document chunks, embeddings, full-text search vectors, chats, and citations all live in Supabase Postgres. Raw downloaded filings remain gitignored local ingestion inputs unless a later workflow stores them in object storage.
 
 ## Capacity (pilot scale)
 

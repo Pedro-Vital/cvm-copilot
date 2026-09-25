@@ -23,7 +23,6 @@ Full brief: [docs/client-brief.md](docs/client-brief.md)
 | Migrations         | SQLAlchemy models + Alembic                          |
 | Retrieval          | Supabase `pgvector` + Postgres full-text search      |
 | Auth               | Supabase Auth (email only)                           |
-| Hosting            | Railway                                              |
 | LLM + embeddings   | OpenAI                                               |
 
 ## Repo layout
@@ -73,7 +72,7 @@ cp .env.example .env
 | `DATABASE_URL` | The **direct** connection (`db.<ref>.supabase.co:5432`), not the pooler. URL-encode the password |
 | `OPENAI_API_KEY` | Chat model + embeddings |
 | `ALLOWED_ORIGINS` | Comma-separated CORS origins; `http://localhost:5173` for local dev |
-| `LOG_FORMAT`, `LOG_LEVEL` | Optional. `console` (default) or `json`; `INFO` by default |
+| `LOG_LEVEL` | Optional. `INFO` by default |
 
 **2. Database schema** (first run, and after pulling new migrations):
 
@@ -139,8 +138,6 @@ shares a `turn_id` (the assistant message id), so you can pull up one failed ans
 | `agent_run_done` | Validated answer (`requests`, `tool_calls`, tokens, `citations`, `duration_ms`) |
 | `turn_done` | Stream finished (`first_text_ms` = wait before answer text appears, `duration_ms`) |
 | `grounding_failed` / `agent_usage_limit_exceeded` / `retrieval_failed` / `agent_run_failed` | The turn failed closed; the analyst saw an error |
-
-Set `LOG_FORMAT=json` in hosted environments to get one JSON object per line.
 
 ## Loading and updating the corpus
 

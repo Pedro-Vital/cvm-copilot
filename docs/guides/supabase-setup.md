@@ -44,11 +44,11 @@ This app uses email auth only — no Google/SSO.
 
 1. Dashboard → **Authentication** → **Providers**.
 2. Leave **Email** enabled.
-3. For local dev, you may want **Authentication** → **Email** → disable "Confirm email" so sign-up works without inbox access (re-enable for production).
+3. For local dev, you may want **Authentication** → **Email** → disable "Confirm email" so sign-up works without inbox access.
 
 ## 5. Database schema management
 
-CVM Copilot uses Alembic from the Python backend to manage database schema. Do not create production tables manually in the Supabase dashboard.
+CVM Copilot uses Alembic from the Python backend to manage database schema. Do not create tables manually in the Supabase dashboard.
 
 Alembic migrations create and update:
 
